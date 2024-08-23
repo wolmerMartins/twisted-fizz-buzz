@@ -1,10 +1,13 @@
-﻿namespace TwistedFizzBuzzLib.Implementations;
+﻿using TwistedFizzBuzzLib.Models;
+
+namespace TwistedFizzBuzzLib.Implementations;
 
 public class TwistedFizzBuzz : ITwistedFizzBuzz
 {
     private readonly IPrinter Printer;
 
     private IEnumerable<int> Numbers;
+    private List<Twist>? Twists;
 
     public TwistedFizzBuzz(IPrinter printer, int rangeStart, int rangeEnd)
     {
@@ -38,26 +41,34 @@ public class TwistedFizzBuzz : ITwistedFizzBuzz
         return Enumerable.Range(start, end - start + 1);
     }
 
+    private List<Twist> GetTwists(List<Twist>? twists = null)
+        => twists ?? new List<Twist>
+        {
+            new Twist("Fizz", 3),
+            new Twist("Buzz", 5)
+        };
+
+    public void WithTwists(List<Twist> twists)
+    {
+        Twists = twists;
+    }
+
     public void Execute()
     {
         foreach (int num in Numbers)
         {
-            if (num % 3 == 0 && num % 5 == 0)
+            string token = "";
+
+            foreach (Twist twist in GetTwists(Twists))
             {
-                Printer.PrintLine("FizzBuzz");
+                if (num % twist.Divisor == 0)
+                {
+                    token += twist.Token;
+                }
             }
-            else if (num % 3 == 0)
-            {
-                Printer.PrintLine("Fizz");
-            }
-            else if (num % 5 == 0)
-            {
-                Printer.PrintLine("Buzz");
-            }
-            else
-            {
-                Printer.PrintLine(num.ToString());
-            }
+
+            Printer.PrintLine(
+                string.IsNullOrEmpty(token) ? num.ToString() : token);
         }
     }
 }
